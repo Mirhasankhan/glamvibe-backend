@@ -7,7 +7,7 @@ import { parseBodyData } from "../../middlewares/parseBodyData";
 const router = express.Router();
 
 router.post(
-  "/create",
+  "/create/:id",
   FileUploadHelper.upload.array("files", 5), 
   parseBodyData,
   serviceController.createService

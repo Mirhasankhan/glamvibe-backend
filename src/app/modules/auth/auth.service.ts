@@ -29,7 +29,7 @@ const loginUserIntoDB = async (payload: any) => {
   }
 
   const accessToken = jwtHelpers.generateToken(
-    { id: user.id, email: user.email, userName: user.username },
+    { id: user.id, email: user.email, userName: user.username, role:user.role },
     config.jwt.jwt_secret as string,
     config.jwt.expires_in as string
   );

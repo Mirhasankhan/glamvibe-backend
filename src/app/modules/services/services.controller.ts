@@ -21,6 +21,15 @@ const getServices = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const getCategoryServices = catchAsync(async (req: Request, res: Response) => {
+  const result = await servicesService.getCategoriesServiceFromDb(req.params.id);
+  sendResponse(res, {
+    success: true,
+    statusCode: 201,
+    message: "Services Retrieved successfully",
+    data: result,
+  });
+});
 const getService = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id;
   const result = await servicesService.getServiceFromDb(id);
@@ -45,6 +54,7 @@ const deleteService = catchAsync(async (req: Request, res: Response) => {
 export const serviceController = {
   createService,
   getServices,
+  getCategoryServices,
   getService,
   deleteService
 };

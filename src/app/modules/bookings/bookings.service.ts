@@ -91,7 +91,7 @@ const getBookingsFromDB = async (userId: string) => {
       startTime: true,
       endTime: true,
       price: true,
-      status:true,
+      status: true,
       service: {
         select: {
           id: true,
@@ -115,7 +115,7 @@ const getBookingDetailsFromDB = async (bookingId: string) => {
       startTime: true,
       endTime: true,
       phone: true,
-      status:true,
+      status: true,
       service: {
         select: {
           id: true,
@@ -137,7 +137,7 @@ const getBookingDetailsFromDB = async (bookingId: string) => {
   }
   // const avgRating = await prisma.review.aggregate({
   //   where: {
-  //     hotelId: bookings.hotel?.id,
+  //     serviceId: bookings.service.id,
   //   },
   //   _avg: {
   //     rating: true,
@@ -146,7 +146,7 @@ const getBookingDetailsFromDB = async (bookingId: string) => {
   // const avg = avgRating._avg.rating ?? 0;
   return {
     bookings,
-    // hotelRating: avg,
+    // serviceRating: avg,
   };
 };
 

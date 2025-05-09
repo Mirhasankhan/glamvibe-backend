@@ -45,19 +45,89 @@ const createServiceIntoDb = async (req: Request) => {
 };
 
 const getAllServiceFromDb = async () => {
-  const services = await prisma.service.findMany({});
+  const services = await prisma.service.findMany({
+    include: {
+      review: {
+        select: {
+          rating: true,
+        },
+      },
+    },
+  });
+
   if (!services.length) {
     throw new ApiError(404, "Services not found!");
   }
 
-  return services;
+  const servicesWithAvgRating = services.map((service) => {
+    const ratings = service.review.map((r) => r.rating);
+    const avgRating = ratings.length
+      ? ratings.reduce((a, b) => a + b, 0) / ratings.length
+      : null;
+
+    return {
+      ...service,
+      avgRating,
+    };
+  });
+
+  return servicesWithAvgRating;
 };
+const getCategoriesServiceFromDb = async (categoryId: string) => {
+  const existingCategory = await prisma.category.findUnique({
+    where: { id: categoryId },
+  });
+  if (!existingCategory) {
+    throw new ApiError(404, "Category not found!");
+  }
+  const services = await prisma.service.findMany({
+    where:{categoryId},
+    include: {
+      review: {
+        select: {
+          rating: true,
+        },
+      },
+    },
+  });
+
+  if (!services.length) {
+    throw new ApiError(404, "Services not found!");
+  }
+
+  const servicesWithAvgRating = services.map((service) => {
+    const ratings = service.review.map((r) => r.rating);
+    const avgRating = ratings.length
+      ? ratings.reduce((a, b) => a + b, 0) / ratings.length
+      : null;
+
+    return {
+      ...service,
+      avgRating,
+    };
+  });
+
+  return servicesWithAvgRating;
+};
+
 const getServiceFromDb = async (serviceId: string) => {
-  const service = await prisma.service.findUnique({ where: { id: serviceId } });
+  const service = await prisma.service.findUnique({
+    where: { id: serviceId },
+  });
+
   if (!service) {
     throw new ApiError(404, "Service not found!");
   }
-  return service;
+
+  const avgResult = await prisma.review.aggregate({
+    where: { serviceId },
+    _avg: { rating: true },
+  });
+
+  return {
+    ...service,
+    avgRating: avgResult._avg.rating ?? null,
+  };
 };
 
 const deleteServiceFromDb = async (serviceId: string) => {
@@ -74,4 +144,5 @@ export const servicesService = {
   getAllServiceFromDb,
   getServiceFromDb,
   deleteServiceFromDb,
+  getCategoriesServiceFromDb
 };

@@ -3,6 +3,7 @@ import auth from "../../middlewares/auth";
 import { serviceController } from "./services.controller";
 import { FileUploadHelper } from "../../../helpers/fileUploader";
 import { parseBodyData } from "../../middlewares/parseBodyData";
+import { UserRole } from "@prisma/client";
 
 const router = express.Router();
 
@@ -12,8 +13,9 @@ router.post(
   parseBodyData,
   serviceController.createService
 );
-router.get("/", serviceController.getServices);
-router.get("/:id", serviceController.getService);
+router.get("/all",auth(UserRole.ADMIN), serviceController.getServices);
+router.get("/category/:id", serviceController.getCategoryServices);
+router.get("/single/:id", serviceController.getService);
 router.delete("/:id", serviceController.deleteService);
 
 export const serviceRoute = router;

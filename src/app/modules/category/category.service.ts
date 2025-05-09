@@ -28,6 +28,19 @@ const createCategoryIntoDB = async (req: Request) => {
   return category;
 };
 
+const getCategoriesFromDB = async () => {
+  const categories = await prisma.category.findMany({
+    include: {
+      service: true,
+    },
+  });
+  if (!categories) {
+    throw new ApiError(404, "Categories Not Found");
+  }
+  return categories;
+};
+
 export const categoryServices = {
   createCategoryIntoDB,
+  getCategoriesFromDB,
 };

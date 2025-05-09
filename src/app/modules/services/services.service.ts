@@ -6,9 +6,8 @@ import { FileUploadHelper } from "../../../helpers/fileUploader";
 
 const createServiceIntoDb = async (req: Request) => {
   const payload = req.body;
-  const categoryId = req.params.id;
   const existingCategory = await prisma.category.findUnique({
-    where: { id: categoryId },
+    where: { id: payload.categoryId },
   });
   if (!existingCategory) {
     throw new ApiError(404, "Category not found, service creation failed!");
@@ -16,10 +15,10 @@ const createServiceIntoDb = async (req: Request) => {
   const existingService = await prisma.service.findFirst({
     where: {
       serviceName: payload.serviceName,
-      categoryId,
+      categoryId: payload.categoryId,
     },
   });
-  if (!existingService) {
+  if (existingService) {
     throw new ApiError(
       404,
       "Service creation failed! This category already have this service"
@@ -40,7 +39,6 @@ const createServiceIntoDb = async (req: Request) => {
   const newService = await prisma.service.create({
     data: {
       ...payload,
-      categoryId
     },
   });
   return newService;

@@ -5,6 +5,18 @@ import { ObjectId } from "mongodb";
 import { jwtHelpers } from "../../../helpers/jwtHelpers";
 import config from "../../../config";
 import prisma from "../../../shared/prisma";
+import Stripe from "stripe";
+
+const stripe = new Stripe(config.stripe.stripe_secret as string);
+
+//create new user
+const createCustomerStripeAccount = async (email: string, name: string) => {
+  const account = await stripe.customers.create({
+    email,
+    name,
+  });
+  return account;
+};
 
 //create new user
 const createUserIntoDB = async (payload: User) => {
@@ -17,15 +29,21 @@ const createUserIntoDB = async (payload: User) => {
 
   const hashedPassword = await bcrypt.hash(payload.password as string, 10);
 
+  const stripeAccount = await createCustomerStripeAccount(
+    payload.email,
+    payload.username
+  );
+
   const user = await prisma.user.create({
     data: {
       ...payload,
       password: hashedPassword,
+      stripeCustomerId: stripeAccount.id,
     },
   });
 
   const accessToken = jwtHelpers.generateToken(
-    user,
+    { id: user.id, email: user.email, role: user.role, stripeCustomerId: stripeAccount.id },
     config.jwt.jwt_secret as string,
     config.jwt.expires_in as string
   );

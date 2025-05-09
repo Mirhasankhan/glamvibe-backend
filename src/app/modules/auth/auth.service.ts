@@ -6,6 +6,7 @@ import config from "../../../config";
 import { User } from "@prisma/client";
 import generateOTP from "../../../helpers/generateOtp";
 import sendEmail from "../../../helpers/sendEmail";
+import { createCustomerStripeAccount } from "../user/user.services";
 
 //login user
 const loginUserIntoDB = async (payload: any) => {
@@ -29,7 +30,12 @@ const loginUserIntoDB = async (payload: any) => {
   }
 
   const accessToken = jwtHelpers.generateToken(
-    { id: user.id, email: user.email, userName: user.username, role:user.role },
+    {
+      id: user.id,
+      email: user.email,
+      userName: user.username,
+      role: user.role,
+    },
     config.jwt.jwt_secret as string,
     config.jwt.expires_in as string
   );
@@ -51,18 +57,26 @@ const socialLoginIntoDB = async (username: string, email: string) => {
   const password = Math.random().toString(36).slice(-8);
   const hashedPassword = await bcrypt.hash(password, 10);
 
+  const stripeAccount = await createCustomerStripeAccount(email, username);
+
   if (!user) {
     user = await prisma.user.create({
       data: {
         username,
         email,
         password: hashedPassword,
+        stripeCustomerId: stripeAccount.id,
       },
     });
   }
 
   const accessToken = jwtHelpers.generateToken(
-    { id: user.id, email: user.email, userName: user.username },
+    {
+      id: user.id,
+      email: user.email,
+      userName: user.username,
+      stripeCustomerId: stripeAccount.id,
+    },
     config.jwt.jwt_secret as string,
     config.jwt.expires_in as string
   );
@@ -224,5 +238,5 @@ export const authService = {
   sendForgotPasswordOtpDB,
   verifyForgotPasswordOtpCodeDB,
   resetForgotPasswordDB,
-  socialLoginIntoDB
+  socialLoginIntoDB,
 };

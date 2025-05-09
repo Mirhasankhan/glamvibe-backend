@@ -10,7 +10,7 @@ import Stripe from "stripe";
 const stripe = new Stripe(config.stripe.stripe_secret as string);
 
 //create new user
-const createCustomerStripeAccount = async (email: string, name: string) => {
+export const createCustomerStripeAccount = async (email: string, name: string) => {
   const account = await stripe.customers.create({
     email,
     name,

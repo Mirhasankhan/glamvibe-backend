@@ -81,7 +81,7 @@ const getCategoriesServiceFromDb = async (categoryId: string) => {
     throw new ApiError(404, "Category not found!");
   }
   const services = await prisma.service.findMany({
-    where:{categoryId},
+    where: { categoryId },
     include: {
       review: {
         select: {
@@ -107,7 +107,11 @@ const getCategoriesServiceFromDb = async (categoryId: string) => {
     };
   });
 
-  return servicesWithAvgRating;
+  return {
+    categoryName: existingCategory.categoryName,
+    servicesWithAvgRating,
+    
+  };
 };
 
 const getServiceFromDb = async (serviceId: string) => {
@@ -144,5 +148,5 @@ export const servicesService = {
   getAllServiceFromDb,
   getServiceFromDb,
   deleteServiceFromDb,
-  getCategoriesServiceFromDb
+  getCategoriesServiceFromDb,
 };

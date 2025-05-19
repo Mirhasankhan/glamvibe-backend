@@ -30,6 +30,8 @@ model Category {
   id           String    @id @default(auto()) @map("_id") @db.ObjectId
   categoryName String
   mediaUrls    String[]
+  description  String
+  overview     String
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   service      Service[]

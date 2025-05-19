@@ -109,6 +109,8 @@ const getCategoriesServiceFromDb = async (categoryId: string) => {
 
   return {
     categoryName: existingCategory.categoryName,
+    iconUrl: existingCategory.mediaUrls[0],
+    mediaUrl: existingCategory.mediaUrls[1],
     servicesWithAvgRating,
     
   };

@@ -20,6 +20,7 @@ const upload = multer({
       "image/png",
       "image/jpg",
       "image/gif",
+      "image/avif",
       "video/mp4",
       "video/mov",
       "video/avi",

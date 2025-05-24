@@ -59,7 +59,7 @@ const verifyForgotPasswordOtpCode = catchAsync(
 // update forgot password
 const resetPassword = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.id;
-  const { newPassword } = req.body;
+  const  {newPassword}  = req.body;
   const result = await authService.resetForgotPasswordDB(newPassword, userId);
 
   sendResponse(res, {

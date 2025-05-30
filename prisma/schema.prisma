@@ -35,6 +35,7 @@ model Category {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   service      Service[]
+  Expert       Expert[]
 
   @@map("categories")
 }
@@ -114,6 +115,18 @@ model Review {
   service   Service  @relation(fields: [serviceId], references: [id])
 
   @@map("reviews")
+}
+
+model Expert {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  categoryId String   @db.ObjectId
+  imageUrl   String
+  name       String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  @@map("experts")
 }
 
 enum UserRole {

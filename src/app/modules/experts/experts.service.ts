@@ -37,11 +37,18 @@ const createExpertIntoDB = async (req: Request) => {
 const getExpertsFromDB = async (categoryId?: string) => {
   const experts = await prisma.expert.findMany({
     where: categoryId ? { categoryId } : {},
+    include: {
+      category: {
+        select: {
+          categoryName: true,
+        },
+      },
+    },
   });
   return experts;
 };
 
 export const expertServices = {
   createExpertIntoDB,
-  getExpertsFromDB
+  getExpertsFromDB,
 };

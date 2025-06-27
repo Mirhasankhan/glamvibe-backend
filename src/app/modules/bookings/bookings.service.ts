@@ -25,16 +25,6 @@ const createBookingIntoDB = async (userId: string, bookingData: Booking) => {
       serviceId: bookingData.serviceId,
       date: bookingData.date,
       status: { not: "CANCELLED" },
-      OR: [
-        {
-          startTime: {
-            lt: bookingData.endTime,
-          },
-          endTime: {
-            gt: bookingData.startTime,
-          },
-        },
-      ],
     },
   });
 
@@ -45,43 +35,91 @@ const createBookingIntoDB = async (userId: string, bookingData: Booking) => {
     );
   }
 
-  await stripe.paymentMethods.attach(bookingData.paymentMethodId, {
-    customer: user.stripeCustomerId,
-  });
-  const paymentIntent = await stripe.paymentIntents.create({
-    amount: bookingData.price * 100,
-    currency: "usd",
-    customer: user?.stripeCustomerId,
-    confirm: true,
-    payment_method: bookingData.paymentMethodId,
-    automatic_payment_methods: {
-      enabled: true,
-      allow_redirects: "never",
+  const booking = await prisma.booking.create({
+    data: {
+      ...bookingData,
+      userId: userId,
     },
   });
 
-  if (paymentIntent.status === "succeeded") {
-    const booking = await prisma.booking.create({
-      data: {
-        ...bookingData,
-        userId: userId,
-        paymentIntentId: paymentIntent.id,
-      },
-    });
-    await prisma.payment.create({
-      data: {
-        bookingId: booking.id,
-        paymentMethodId: bookingData.paymentMethodId,
-        paymentIntentId: paymentIntent.id,
-        amount: booking.price,
-        userId,
-      },
-    });
-    return booking;
-  } else {
-    throw new ApiError(400, "Booking Failed");
-  }
+  return booking;
 };
+// const createBookingIntoDB = async (userId: string, bookingData: Booking) => {
+//   const user = await prisma.user.findUnique({
+//     where: { id: userId },
+//   });
+//   if (!user) {
+//     throw new ApiError(404, "User not found");
+//   }
+//   const existingService = await prisma.service.findUnique({
+//     where: { id: bookingData.serviceId },
+//   });
+//   if (!existingService) {
+//     throw new ApiError(404, "Service not found! Booking Failed.");
+//   }
+
+//   const conflictingBooking = await prisma.booking.findFirst({
+//     where: {
+//       serviceId: bookingData.serviceId,
+//       date: bookingData.date,
+//       status: { not: "CANCELLED" },
+//       OR: [
+//         {
+//           startTime: {
+//             lt: bookingData.endTime,
+//           },
+//           endTime: {
+//             gt: bookingData.startTime,
+//           },
+//         },
+//       ],
+//     },
+//   });
+
+//   if (conflictingBooking) {
+//     throw new ApiError(
+//       409,
+//       "Time slot already booked. Please choose another slot."
+//     );
+//   }
+
+//   await stripe.paymentMethods.attach(bookingData.paymentMethodId, {
+//     customer: user.stripeCustomerId,
+//   });
+//   const paymentIntent = await stripe.paymentIntents.create({
+//     amount: bookingData.price * 100,
+//     currency: "usd",
+//     customer: user?.stripeCustomerId,
+//     confirm: true,
+//     payment_method: bookingData.paymentMethodId,
+//     automatic_payment_methods: {
+//       enabled: true,
+//       allow_redirects: "never",
+//     },
+//   });
+
+//   if (paymentIntent.status === "succeeded") {
+//     const booking = await prisma.booking.create({
+//       data: {
+//         ...bookingData,
+//         userId: userId,
+//         paymentIntentId: paymentIntent.id,
+//       },
+//     });
+//     await prisma.payment.create({
+//       data: {
+//         bookingId: booking.id,
+//         paymentMethodId: bookingData.paymentMethodId,
+//         paymentIntentId: paymentIntent.id,
+//         amount: booking.price,
+//         userId,
+//       },
+//     });
+//     return booking;
+//   } else {
+//     throw new ApiError(400, "Booking Failed");
+//   }
+// };
 const getBookingsFromDB = async (userId: string) => {
   const bookings = await prisma.booking.findMany({
     where: { userId },
@@ -89,7 +127,6 @@ const getBookingsFromDB = async (userId: string) => {
       id: true,
       date: true,
       startTime: true,
-      endTime: true,
       price: true,
       status: true,
       service: {
@@ -113,7 +150,6 @@ const getBookingDetailsFromDB = async (bookingId: string) => {
       id: true,
       date: true,
       startTime: true,
-      endTime: true,
       phone: true,
       status: true,
       service: {
@@ -207,6 +243,7 @@ const confirmBookingFromDB = async (bookingId: string) => {
   };
 };
 
+// const cancelBookingFromDB = async (bookingId: string) => {
 const cancelBookingFromDB = async (bookingId: string) => {
   const existingBooking = await prisma.booking.findUnique({
     where: { id: bookingId },
@@ -216,32 +253,6 @@ const cancelBookingFromDB = async (bookingId: string) => {
   }
   if (existingBooking.status == "COMPLETED") {
     throw new ApiError(404, "this booking is already completed");
-  }
-  if (existingBooking.paymentIntentId) {
-    try {
-      const paymentIntent = await stripe.paymentIntents.retrieve(
-        existingBooking.paymentIntentId
-      );
-
-      if (paymentIntent.status === "succeeded") {
-        await stripe.refunds.create({
-          payment_intent: paymentIntent.id,
-        });
-      } else {
-        throw new ApiError(
-          400,
-          "Payment not confirmed, refund cannot be processed."
-        );
-      }
-    } catch (error) {
-      console.error("Refund Error: ", error);
-      throw new ApiError(500, "Refund process failed.");
-    }
-  } else {
-    throw new ApiError(
-      500,
-      "No payment found for this booking, skipping refund."
-    );
   }
 
   const booking = await prisma.booking.update({

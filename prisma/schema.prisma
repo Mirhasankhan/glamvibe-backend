@@ -59,8 +59,8 @@ model Booking {
   userId          String        @db.ObjectId
   serviceId       String        @db.ObjectId
   price           Float
-  date            DateTime
-  startTime       DateTime
+  date            String
+  startTime       String
   phone           String
   status          BookingStatus @default(ACTIVE)
   createdAt       DateTime      @default(now())

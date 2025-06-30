@@ -119,6 +119,27 @@ const getCategoriesServiceFromDb = async (categoryId: string) => {
 const getServiceFromDb = async (serviceId: string) => {
   const service = await prisma.service.findUnique({
     where: { id: serviceId },
+    include: {
+      category: {
+        select: {
+          categoryName:true,          
+        }
+      },
+      review: {
+        select: {
+          id:true,
+          comment:true,
+          rating:true,
+          user: {
+            select: {
+              id:true,
+              profileImage:true,
+              username:true
+            }
+          }
+        }
+      }
+    }
   });
 
   if (!service) {

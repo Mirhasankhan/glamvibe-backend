@@ -15,6 +15,10 @@ const createReviewIntoDB = async (userId: string, reviewData: Review) => {
   if (!existingService) {
     throw new ApiError(404, "Service not found! Review failed.");
   }
+
+  if (!reviewData.comment && !reviewData.rating) {
+    throw new ApiError(404, "Either comment or rating is required");
+  }
   const review = await prisma.review.create({
     data: {
       ...reviewData,
@@ -71,5 +75,5 @@ const getAllReviewsFromDB = async () => {
 export const reviewService = {
   createReviewIntoDB,
   getServiceReviewsFromDB,
-  getAllReviewsFromDB
+  getAllReviewsFromDB,
 };

@@ -55,22 +55,23 @@ model Service {
 }
 
 model Booking {
-  id              String        @id @default(auto()) @map("_id") @db.ObjectId
-  userId          String        @db.ObjectId
-  serviceId       String        @db.ObjectId
-  price           Float
-  date            String
-  startTime       String
-  phone           String
-  status          BookingStatus @default(ACTIVE)
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id        String        @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String        @db.ObjectId
+  serviceId String        @db.ObjectId
+  price     Float
+  date      String
+  startTime String
+  phone     String
+  status    BookingStatus @default(ACTIVE)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
 
   user    User    @relation(fields: [userId], references: [id])
   service Service @relation(fields: [serviceId], references: [id])
 
   @@map("bookings")
 }
+
 // model Booking {
 //   id              String        @id @default(auto()) @map("_id") @db.ObjectId
 //   userId          String        @db.ObjectId
@@ -103,7 +104,7 @@ model Payment {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  user    User?    @relation(fields: [userId], references: [id])
+  user User? @relation(fields: [userId], references: [id])
   // booking Booking? @relation(fields: [bookingId], references: [id])
 
   @@map("payments")
@@ -146,6 +147,22 @@ model Expert {
   @@map("experts")
 }
 
+model JobPost {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  title           String
+  salary          String
+  description     String
+  requirements    String
+  experiencelevel String
+  jobType         String
+  lastDate        String
+  isActive        Boolean @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("jobPosts")
+}
+
 enum UserRole {
   ADMIN
   USER
@@ -157,3 +174,4 @@ enum BookingStatus {
   COMPLETED
   CANCELREQUEST
 }
+

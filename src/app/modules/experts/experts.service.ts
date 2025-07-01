@@ -3,6 +3,7 @@ import ApiError from "../../../errors/ApiErrors";
 import prisma from "../../../shared/prisma";
 import { IUploadFile } from "../../interfaces/file";
 import { FileUploadHelper } from "../../../helpers/fileUploader";
+import { JobPost } from "@prisma/client";
 
 const createExpertIntoDB = async (req: Request) => {
   const payload = req.body;
@@ -46,6 +47,13 @@ const getExpertsFromDB = async (categoryId?: string) => {
     },
   });
   return experts;
+};
+
+const createJobPostIntoDB = async (postData: JobPost) => {
+  const JobPost = await prisma.jobPost.create({
+    data: postData,
+  });
+  return JobPost
 };
 
 export const expertServices = {

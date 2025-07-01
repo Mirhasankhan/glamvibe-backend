@@ -6,6 +6,7 @@ import { categoryRoutes } from "../modules/category/category.route";
 import { bookingRoutes } from "../modules/bookings/bookings.route";
 import { reviewRoutes } from "../modules/reviews/reviews.route";
 import { expertRoutes } from "../modules/experts/experts.route";
+import { jobPostRoutes } from "../modules/jobPost/jobPost.route";
 
 const router = express.Router();
 
@@ -38,6 +39,10 @@ const moduleRoutes = [
   {
     path: "/expert",
     route: expertRoutes,
+  },
+  {
+    path: "/job-post",
+    route: jobPostRoutes,
   },
 ];
 

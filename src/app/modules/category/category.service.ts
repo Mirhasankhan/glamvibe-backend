@@ -6,6 +6,14 @@ import prisma from "../../../shared/prisma";
 
 const createCategoryIntoDB = async (req: Request) => {
   const payload = req.body;
+
+  const existingCategory = await prisma.category.findFirst({
+    where: { categoryName: payload.categoryName },
+  });
+  if (existingCategory) {
+    throw new ApiError(404, "This category already exists.");
+  }
+
   const files = req.files as IUploadFile[];
   if (!files || files.length === 0) {
     throw new Error("No files uploaded");

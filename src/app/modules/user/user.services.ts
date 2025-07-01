@@ -6,11 +6,17 @@ import { jwtHelpers } from "../../../helpers/jwtHelpers";
 import config from "../../../config";
 import prisma from "../../../shared/prisma";
 import Stripe from "stripe";
+import { Request } from "express";
+import { IUploadFile } from "../../interfaces/file";
+import { FileUploadHelper } from "../../../helpers/fileUploader";
 
 const stripe = new Stripe(config.stripe.stripe_secret as string);
 
 //create new user
-export const createCustomerStripeAccount = async (email: string, name: string) => {
+export const createCustomerStripeAccount = async (
+  email: string,
+  name: string
+) => {
   const account = await stripe.customers.create({
     email,
     name,
@@ -43,7 +49,12 @@ const createUserIntoDB = async (payload: User) => {
   });
 
   const accessToken = jwtHelpers.generateToken(
-    { id: user.id, email: user.email, role: user.role, stripeCustomerId: stripeAccount.id },
+    {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      stripeCustomerId: stripeAccount.id,
+    },
     config.jwt.jwt_secret as string,
     config.jwt.expires_in as string
   );
@@ -98,6 +109,39 @@ const updateUserIntoDB = async (id: string, userData: any) => {
 
   return sanitizedUser;
 };
+//update user
+const updateProfileImage = async (req: Request) => {
+  const id = req.user.id;
+  const payload = req.body;
+
+  const existingUser = await getSingleUserIntoDB(id);
+  if (!existingUser) {
+    throw new ApiError(404, "user not found for edit user");
+  }
+
+  const files = req.files as IUploadFile[];
+  if (!files || files.length === 0) {
+    throw new Error("No files uploaded");
+  }
+  if (files && files.length > 0) {
+    const uploadedMedia = await FileUploadHelper.uploadToCloudinary(files);
+
+    payload.imageUrls = uploadedMedia.map((media) => media.secure_url);
+  }
+  if (!payload.imageUrls) {
+    throw new ApiError(409, "NO image Uploaded");
+  }
+  const updatedUser = await prisma.user.update({
+    where: { id },
+    data: {
+      profileImage: payload?.imageUrls[0],
+    },
+  });
+
+  const { password, ...sanitizedUser } = updatedUser;
+
+  return sanitizedUser;
+};
 
 //delete user
 const deleteUserIntoDB = async (userId: string, loggedId: string) => {
@@ -124,4 +168,5 @@ export const userService = {
   getSingleUserIntoDB,
   updateUserIntoDB,
   deleteUserIntoDB,
+  updateProfileImage
 };

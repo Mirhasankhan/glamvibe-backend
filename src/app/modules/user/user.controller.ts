@@ -38,14 +38,20 @@ const getSingleUser = catchAsync(async (req: Request, res: Response) => {
 
 //update user
 const updateUser = catchAsync(async (req: Request, res: Response) => {
-  const updatedUser = await userService.updateUserIntoDB(
-    req.params.id,
-    req.body
-  );
+  const updatedUser = await userService.updateUserIntoDB(req.user.id, req.body);
   sendResponse(res, {
     success: true,
     statusCode: 200,
     message: "user updated successfully",
+    data: updatedUser,
+  });
+});
+const updateProfileImage = catchAsync(async (req: Request, res: Response) => {
+  const updatedUser = await userService.updateProfileImage(req);
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Profile Image updated successfully",
     data: updatedUser,
   });
 });
@@ -68,4 +74,5 @@ export const UserControllers = {
   getSingleUser,
   updateUser,
   deleteUser,
+  updateProfileImage
 };

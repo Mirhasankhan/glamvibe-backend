@@ -10,7 +10,6 @@ router.post(
   validateRequest(jobPostValidation.jobPostValidationSchema),
   jobPostController.createJobPost
 );
-
 router.get("/", jobPostController.jobPosts)
 router.patch("/switch/:id", jobPostController.switchActive)
 

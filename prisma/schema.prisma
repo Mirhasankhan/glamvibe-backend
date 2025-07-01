@@ -148,7 +148,7 @@ model Expert {
 }
 
 model JobPost {
-  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  id              String         @id @default(auto()) @map("_id") @db.ObjectId
   title           String
   salary          String
   description     String
@@ -156,11 +156,30 @@ model JobPost {
   experiencelevel String
   jobType         String
   lastDate        String
-  isActive        Boolean @default(true)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  isActive        Boolean        @default(true)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  Applications    Applications[]
 
   @@map("jobPosts")
+}
+
+model Applications {
+  id             String  @id @default(auto()) @map("_id") @db.ObjectId
+  fullName       String
+  phone          String
+  email          String
+  postId         String  @db.ObjectId
+  expectedSalary Int
+  resumeUrl      String
+  experience     String?
+  education      String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  jobPost   JobPost  @relation(fields: [postId], references: [id])
+
+  @@map("applications")
 }
 
 enum UserRole {
@@ -174,4 +193,3 @@ enum BookingStatus {
   COMPLETED
   CANCELREQUEST
 }
-

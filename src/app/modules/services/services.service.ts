@@ -134,7 +134,8 @@ const getServiceFromDb = async (serviceId: string) => {
             select: {
               id:true,
               profileImage:true,
-              username:true
+              username:true,
+              createdAt:true
             }
           }
         }

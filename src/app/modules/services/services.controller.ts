@@ -13,7 +13,8 @@ const createService = catchAsync(async (req: Request, res: Response) => {
   });
 });
 const getServices = catchAsync(async (req: Request, res: Response) => {
-  const result = await servicesService.getAllServiceFromDb();
+  const categoryId = req.query.categoryId
+  const result = await servicesService.getAllServiceFromDb(categoryId as string);
   sendResponse(res, {
     success: true,
     statusCode: 201,

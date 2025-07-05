@@ -44,14 +44,22 @@ const createServiceIntoDb = async (req: Request) => {
   return newService;
 };
 
-const getAllServiceFromDb = async () => {
+const getAllServiceFromDb = async (categoryId?: string) => {
   const services = await prisma.service.findMany({
+    where: categoryId
+      ? { categoryId } 
+      : undefined,
     include: {
       review: {
         select: {
           rating: true,
         },
       },
+      category: {
+        select: {
+          categoryName:true
+        }
+      }
     },
   });
 

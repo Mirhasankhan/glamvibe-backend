@@ -187,7 +187,7 @@ const getBookingDetailsFromDB = async (bookingId: string) => {
 };
 
 const getAllBookingsFromDB = async (page: number = 1) => {
-  const limit = 5;
+  const limit = 10;
   const skip = (page - 1) * limit;
   const totalBookings = await prisma.booking.count();
 

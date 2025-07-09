@@ -72,8 +72,31 @@ const getAllReviewsFromDB = async () => {
   return reviews;
 };
 
+const getDetailsForAdminFromDb = async () => {
+  const activeOrderCount = await prisma.booking.count({
+    where: { status: "ACTIVE" },
+  });
+  const totalBookingsCount = await prisma.booking.count({});
+  const earnings = await prisma.booking.aggregate({
+    where: { status: "COMPLETED" },
+    _sum: { price: true },
+  });
+
+  const totalUserCount = await prisma.user.count({
+    where: { role: "USER" },
+  });
+
+  return {
+    activeOrderCount,
+    totalUserCount,
+    totalBookingsCount,
+    earnings: earnings._sum.price || 0,
+  };
+};
+
 export const reviewService = {
   createReviewIntoDB,
   getServiceReviewsFromDB,
   getAllReviewsFromDB,
+  getDetailsForAdminFromDb
 };

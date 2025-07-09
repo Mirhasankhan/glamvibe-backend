@@ -8,5 +8,6 @@ const router = express.Router()
 router.post("/create", auth(UserRole.USER), reviewController.createReview)
 router.get("/service/:id", reviewController.getServiceReviews)
 router.get("/all",auth(UserRole.ADMIN), reviewController.getAllReviews)
+router.get("/overview",auth(UserRole.ADMIN), reviewController.getOverview)
 
 export const reviewRoutes = router

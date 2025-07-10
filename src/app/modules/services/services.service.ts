@@ -57,7 +57,8 @@ const getAllServiceFromDb = async (categoryId?: string) => {
       },
       category: {
         select: {
-          categoryName:true
+          categoryName:true,
+          description:true
         }
       }
     },
@@ -117,6 +118,7 @@ const getCategoriesServiceFromDb = async (categoryId: string) => {
 
   return {
     categoryName: existingCategory.categoryName,
+    description: existingCategory.description,
     iconUrl: existingCategory.mediaUrls[0],
     mediaUrl: existingCategory.mediaUrls[1],
     servicesWithAvgRating,

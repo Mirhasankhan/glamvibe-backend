@@ -21,14 +21,16 @@ const upload = multer({
       "image/jpg",
       "image/gif",
       "image/avif",
+      "image/webp",
       "video/mp4",
       "video/mov",
       "video/avi",
+      "application/pdf",
     ];
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error("Invalid file type. Only images and videos are allowed."));
+      cb(new Error("Invalid file type."));
     }
   },
 });

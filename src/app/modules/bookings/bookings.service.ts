@@ -3,6 +3,7 @@ import config from "../../../config";
 import ApiError from "../../../errors/ApiErrors";
 import prisma from "../../../shared/prisma";
 import Stripe from "stripe";
+import { startOfYear, endOfYear } from "date-fns";
 
 const stripe = new Stripe(config.stripe.stripe_secret as string);
 
@@ -265,6 +266,48 @@ const cancelBookingFromDB = async (bookingId: string) => {
   };
 };
 
+const getMonthlyEarnings = async () => {
+  const currentYear = new Date().getFullYear();
+  const startDate = startOfYear(new Date(currentYear, 0, 1));
+  const endDate = endOfYear(new Date(currentYear, 11, 31));
+
+  const bookings = await prisma.booking.findMany({
+    where: {
+      createdAt: {
+        gte: startDate,
+        lte: endDate,
+      },
+      // status: "COMPLETED",
+    },
+    select: {
+      createdAt: true,
+      price: true,
+    },
+  });
+
+  const monthlyRevenue: { [key: number]: number } = {};
+  for (let i = 0; i < 12; i++) {
+    monthlyRevenue[i] = 0;
+  }
+
+  bookings.forEach((booking) => {
+    const month = new Date(booking.createdAt).getMonth();
+    monthlyRevenue[month] += Number(booking.price) || 0;
+  });
+
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
+  ];
+
+  const chartData = monthNames.map((month, index) => ({
+    month,
+    revenue: monthlyRevenue[index],
+  }));
+
+  return chartData;
+};
+
 export const bookingService = {
   createBookingIntoDB,
   getAllBookingsFromDB,
@@ -272,4 +315,5 @@ export const bookingService = {
   getBookingsFromDB,
   confirmBookingFromDB,
   cancelBookingFromDB,
+  getMonthlyEarnings
 };

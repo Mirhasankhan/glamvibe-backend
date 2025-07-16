@@ -11,5 +11,6 @@ router.get("/admin-bookings", auth(UserRole.ADMIN), bookingController.getAllBook
 router.get("/details/:id", auth(UserRole.USER), bookingController.getBookingDetails);
 router.patch("/confirm/:id", bookingController.confirmBooking);
 router.patch("/cancel/:id", bookingController.cancelBooking);
+router.get("/earning/monthly", bookingController.monthlyEarnings)
 
 export const bookingRoutes = router;

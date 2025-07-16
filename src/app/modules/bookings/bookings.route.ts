@@ -12,5 +12,6 @@ router.get("/details/:id", auth(UserRole.USER), bookingController.getBookingDeta
 router.patch("/confirm/:id", bookingController.confirmBooking);
 router.patch("/cancel/:id", bookingController.cancelBooking);
 router.get("/earning/monthly", bookingController.monthlyEarnings)
+router.get("/service/count", bookingController.serviceBookings)
 
 export const bookingRoutes = router;

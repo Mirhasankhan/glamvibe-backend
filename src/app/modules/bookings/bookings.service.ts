@@ -308,6 +308,33 @@ const getMonthlyEarnings = async () => {
   return chartData;
 };
 
+const getServiceWiseBookingCount = async () => {
+  const bookingCounts = await prisma.booking.groupBy({
+    by: ['serviceId'],
+    _count: {
+      serviceId: true,
+    }    
+  });
+ 
+  const serviceIds = bookingCounts.map((item) => item.serviceId); 
+  const services = await prisma.service.findMany({
+    where: {
+      id: { in: serviceIds },
+    },
+    select: {
+      id: true,
+      serviceName: true,
+    },
+  });
+  const serviceMap = new Map(services.map(s => [s.id, s.serviceName]));
+
+  return bookingCounts.map(item => ({
+    serviceName: serviceMap.get(item.serviceId) || 'Unknown',
+    totalBookings: item._count.serviceId,
+  }));
+};
+
+
 export const bookingService = {
   createBookingIntoDB,
   getAllBookingsFromDB,
@@ -315,5 +342,6 @@ export const bookingService = {
   getBookingsFromDB,
   confirmBookingFromDB,
   cancelBookingFromDB,
-  getMonthlyEarnings
+  getMonthlyEarnings,
+  getServiceWiseBookingCount
 };

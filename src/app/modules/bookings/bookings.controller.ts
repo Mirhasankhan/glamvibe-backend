@@ -69,6 +69,15 @@ const monthlyEarnings = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const serviceBookings = catchAsync(async (req, res) => {
+  const result = await bookingService.getServiceWiseBookingCount();
+  sendResponse(res, {
+    success: true,
+    statusCode: 201,
+    message: "Service wise bookings retrieved successfully",
+    data: result,
+  });
+});
 
 export const bookingController = {
   createBooking,
@@ -77,5 +86,6 @@ export const bookingController = {
   confirmBooking,
   cancelBooking,
   getAllBookings,
-  monthlyEarnings
+  monthlyEarnings,
+  serviceBookings
 };
